@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Size Zero">
+<title>Size Zero</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: #F5F0E8; font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+/* ── NAV ── */
+#mainnav { display: flex; background: #1A1A18; border-bottom: 1px solid #2D2D2A; position: sticky; top: 0; z-index: 100; }
+.mainnav-btn { flex: 1; padding: 14px 0; border: none; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; }
+.mainnav-btn.active { background: #C4A882; color: #1A1A18; }
+.mainnav-btn.inactive { background: #1A1A18; color: #666; }
+
+/* ── CHECKLIST ── */
+#page-check { display: block; }
+#page-plan { display: none; }
+
+#cl-header { background: #1A1A18; padding: 20px 20px 12px; }
+.pre { font-size: 10px; letter-spacing: 0.2em; color: #C8BFB0; text-transform: uppercase; margin-bottom: 3px; }
+.logo { font-size: 26px; font-weight: 800; color: #FAFAF7; letter-spacing: -0.02em; }
+.sub-logo { font-size: 10px; color: #A8B89A; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; }
+.progress-wrap { margin-top: 12px; }
+.progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.progress-label span { font-size: 11px; color: #C8BFB0; }
+.progress-label strong { font-size: 11px; color: #C4A882; }
+.progress-bar { background: #2D2D2A; border-radius: 99px; height: 5px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: #C4A882; transition: width 0.4s; }
+.subtabs { display: flex; gap: 8px; margin-top: 10px; }
+.subtab { flex: 1; padding: 7px 0; border-radius: 6px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.subtab-active { background: #C4A882; color: #1A1A18; }
+.subtab-inactive { background: #2D2D2A; color: #C8BFB0; }
+
+#cl-content { padding: 10px 14px 90px; }
+.section { background: #FAFAF7; border-radius: 12px; margin-bottom: 8px; overflow: hidden; border: 1.5px solid #E8E0D4; transition: border-color 0.3s; }
+.sec-head { width: 100%; border: none; padding: 13px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; transition: background 0.2s; }
+.sec-emoji { font-size: 18px; flex-shrink: 0; }
+.sec-info { flex: 1; }
+.sec-title { font-size: 13px; font-weight: 700; color: #1A1A18; }
+.sec-sub { font-size: 10px; color: #888; margin-top: 1px; }
+.sec-meta { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.sec-count { font-size: 11px; font-weight: 600; }
+.arrow { font-size: 12px; color: #C8BFB0; display: inline-block; transition: transform 0.2s; }
+.arrow-open { transform: rotate(180deg); }
+.items { border-top: 1px solid #F0EAE0; }
+.item { width: 100%; border: none; border-bottom: 1px solid #F0EAE0; padding: 12px 14px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; text-align: left; transition: background 0.15s; background: transparent; }
+.item:last-child { border-bottom: none; }
+.cb { width: 21px; height: 21px; border-radius: 5px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; border: 2px solid; transition: all 0.2s; }
+.item-text { font-size: 13px; color: #1A1A18; line-height: 1.4; transition: all 0.2s; }
+.item-text-done { color: #aaa; text-decoration: line-through; }
+
+#cl-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #1A1A18; padding: 10px 18px 28px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+.bot-date { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.1em; }
+.bot-status { font-size: 12px; color: #C4A882; font-weight: 600; margin-top: 1px; }
+.reset-btn { background: #2D2D2A; border: none; border-radius: 7px; padding: 7px 12px; color: #888; font-size: 11px; cursor: pointer; }
+
+/* ── PLAN ── */
+#page-plan { padding: 0 0 40px; }
+.plan-header { background: #1A1A18; color: #F5F0E8; text-align: center; padding: 2rem 1.2rem 1.8rem; }
+.plan-header .pre2 { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: #C8BFB0; margin-bottom: 0.4rem; }
+.plan-header h1 { font-size: clamp(2rem, 9vw, 3.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: #FAFAF7; }
+.plan-header .sub2 { margin-top: 0.4rem; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: #A8B89A; }
+
+.plan-main { padding: 1.2rem 1rem 2rem; }
+.p-label { font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: #6B6B3A; margin-bottom: 0.4rem; }
+.p-h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.15; color: #1A1A18; }
+.p-body { font-size: 0.83rem; color: #444; line-height: 1.6; margin-bottom: 0.8rem; }
+
+.p-stats { display: grid; grid-template-columns: repeat(4,1fr); background: #1A1A18; margin: 1rem 0; }
+.p-stat { padding: 0.9rem 0.5rem; text-align: center; border-right: 1px solid #2D2D2A; }
+.p-stat:last-child { border-right: none; }
+.p-stat strong { display: block; font-size: 1.2rem; color: #C4A882; font-weight: 800; }
+.p-stat span { font-size: 0.6rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.p-hr { border: none; border-top: 1px solid #C8BFB0; margin: 1.5rem 0; }
+
+.p-week { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin: 0.8rem 0; }
+.p-day { border-radius: 5px; padding: 0.5rem 0.2rem; text-align: center; border: 1px solid #C8BFB0; }
+.p-day .dn { display: block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B3A; margin-bottom: 0.2rem; }
+.p-day .wo { font-size: 0.6rem; color: #1A1A18; line-height: 1.3; }
+
+.p-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 0.8rem 0; }
+.p-card { background: #FAFAF7; border: 1px solid #C8BFB0; padding: 0.8rem; border-radius: 4px; }
+.p-card h4 { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: #6B6B3A; margin-bottom: 0.5rem; }
+.p-card ul { list-style: none; }
+.p-card ul li { font-size: 0.75rem; padding: 0.2rem 0; border-bottom: 1px solid #F5F0E8; color: #333; }
+.p-card ul li:last-child { border-bottom: none; }
+
+.p-tip { background: #EEF2E8; border: 1px solid #A8B89A; padding: 0.8rem 1rem; margin: 0.8rem 0; font-size: 0.8rem; border-radius: 4px; color: #333; }
+.p-tip strong { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: #6B6B3A; display: block; margin-bottom: 0.3rem; }
+
+.p-meal { margin-bottom: 1rem; background: #FAFAF7; border: 1px solid #C8BFB0; border-radius: 4px; overflow: hidden; }
+.p-meal-head { background: #1A1A18; color: #F5F0E8; padding: 0.45rem 0.8rem; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; display: flex; justify-content: space-between; }
+.p-meal-head span { color: #C4A882; font-size: 0.8rem; font-weight: 700; }
+.p-meal-row { display: flex; gap: 0.7rem; padding: 0.6rem 0.8rem; border-bottom: 1px solid #F5F0E8; font-size: 0.78rem; align-items: flex-start; }
+.p-meal-row:last-child { border-bottom: none; }
+.p-meal-type { min-width: 60px; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B3A; padding-top: 0.1rem; flex-shrink: 0; }
+.p-meal-kcal { margin-left: auto; font-size: 0.65rem; color: #C4A882; white-space: nowrap; font-weight: 700; }
+
+.p-routine-step { display: flex; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid #C8BFB0; font-size: 0.82rem; align-items: flex-start; }
+.p-routine-step:last-child { border-bottom: none; }
+
+.p-tracker-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #C8BFB0; font-size: 0.82rem; }
+.p-tracker-row:first-child { border-top: 1px solid #C8BFB0; }
+.p-tracker-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #C8BFB0; }
+.p-tracker-w { font-size: 0.72rem; color: #C4A882; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- MAIN NAV -->
+<div id="mainnav">
+  <button class="mainnav-btn active" id="nav-check" onclick="showPage('check')">✓ Checkliste</button>
+  <button class="mainnav-btn inactive" id="nav-plan" onclick="showPage('plan')">📋 Mein Plan</button>
+</div>
+
+<!-- ══════════ CHECKLISTE ══════════ -->
+<div id="page-check">
+  <div id="cl-header">
+    <div class="pre">Dein persönlicher</div>
+    <div class="logo">SIZE ZERO</div>
+    <div class="sub-logo">58 kg → 53 kg · 10 Wochen</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="ptxt">Heute: 0/20 erledigt</span><strong id="ppct">0%</strong></div>
+      <div class="progress-bar"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+    </div>
+    <div class="subtabs">
+      <button class="subtab subtab-active" id="tab-tag" onclick="switchTab('tag')">Tagesplan</button>
+      <button class="subtab subtab-inactive" id="tab-extra" onclick="switchTab('extra')">Extras</button>
+    </div>
+  </div>
+  <div id="cl-content"></div>
+  <div id="cl-bottom">
+    <div>
+      <div class="bot-date" id="bdate"></div>
+      <div class="bot-status" id="bstatus">Noch 20 Aufgaben</div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">Zurücksetzen</button>
+  </div>
+</div>
+
+<!-- ══════════ PLAN ══════════ -->
+<div id="page-plan">
+  <div class="plan-header">
+    <div class="pre2">Dein persönlicher</div>
+    <h1>SIZE ZERO</h1>
+    <div class="sub2">10 Wochen · 58 kg → 53 kg</div>
+  </div>
+  <div class="plan-main">
+
+    <div class="p-stats">
+      <div class="p-stat"><strong>26</strong><span>Jahre</span></div>
+      <div class="p-stat"><strong>1,62m</strong><span>Größe</span></div>
+      <div class="p-stat"><strong>58 kg</strong><span>Start</span></div>
+      <div class="p-stat"><strong>53 kg</strong><span>Ziel</span></div>
+    </div>
+
+    <div class="p-tip" style="background:#FFF8E8;border-color:#C4A882;">
+      <strong>Kalorienziel</strong>
+      ~1.250 kcal/Tag · min. 100g Protein · Trainingstage bis 1.400 kcal · ~500 kcal Defizit täglich
+    </div>
+
+    <div class="p-hr"></div>
+    <div class="p-label">Training</div>
+    <div class="p-h2">Musterwoche</div>
+    <div class="p-body">1× Push · 2× Pull · 2× Po & Beine · 20:00–21:00 Uhr · zu Hause</div>
+    <div class="p-week">
+      <div class="p-day" style="background:#F0E8F5;border-color:#9B7EC4"><span class="dn">Mo</span><span class="wo">Po & Beine</span></div>
+      <div class="p-day" style="background:#E2E8EF;border-color:#7B9EC4"><span class="dn">Di</span><span class="wo">Pull</span></div>
+      <div class="p-day" style="background:#F5F0E8;border-color:transparent"><span class="dn">Mi</span><span class="wo" style="color:#C8BFB0">Spazieren</span></div>
+      <div class="p-day" style="background:#E8EFE2;border-color:#A8B89A"><span class="dn">Do</span><span class="wo">Push</span></div>
+      <div class="p-day" style="background:#F0E8F5;border-color:#9B7EC4"><span class="dn">Fr</span><span class="wo">Po & Beine</span></div>
+      <div class="p-day" style="background:#E2E8EF;border-color:#7B9EC4"><span class="dn">Sa</span><span class="wo">Pull</span></div>
+      <div class="p-day" style="background:#F5F0E8;border-color:transparent"><span class="dn">So</span><span class="wo" style="color:#C8BFB0">Rest</span></div>
+    </div>
+
+    <div class="p-card-grid">
+      <div class="p-card"><h4>Po & Beine Wo. 1–5</h4><ul><li>Hip Thrusts · 4×15</li><li>Sumo Squats · 3×20</li><li>Donkey Kicks · 3×15</li><li>Glute Bridges · 3×20</li><li>Bulgarian Split Squat · 3×12</li></ul></div>
+      <div class="p-card"><h4>Po & Beine Wo. 6–10</h4><ul><li>Hip Thrusts schwerer · 5×12</li><li>RDL einbeinig · 4×10</li><li>Curtsy Lunges · 3×15</li><li>Fire Hydrants · 3×20</li><li>Cable Kickbacks · 4×15</li></ul></div>
+      <div class="p-card"><h4>Push</h4><ul><li>Schulterdrücken</li><li>Liegestütze</li><li>Trizeps-Kickbacks</li><li>Lateral Raises</li><li>Chest Flyes</li></ul></div>
+      <div class="p-card"><h4>Pull</h4><ul><li>Kurzhantel-Rudern</li><li>Bizeps-Curls</li><li>Romanian Deadlift</li><li>Face Pulls (Band)</li><li>Reverse Flyes</li></ul></div>
+    </div>
+
+    <div class="p-hr"></div>
+    <div class="p-label">Tagesstruktur</div>
+    <div class="p-h2">Dein Tagesablauf</div>
+    <div class="p-tip" style="background:#F0F5ED;border-color:#A8B89A;"><strong>✨ Deine Mahlzeiten</strong>09:00 Frühstück · 13:00 Mittagessen · 17:00 Snack · 21:00 Abendessen (Protein + Gemüse, keine Carbs)</div>
+    <div class="p-routine-step"><b>05:45</b>&nbsp;Aufwachen · 250ml Wasser trinken</div>
+    <div class="p-routine-step"><b>05:55</b>&nbsp;Tasche packen · Boxen + Supplements einpacken</div>
+    <div class="p-routine-step"><b>06:45</b>&nbsp;Haus verlassen · nur Wasser bis 09:00</div>
+    <div class="p-routine-step"><b>09:00</b>&nbsp;🥣 Frühstück: Overnight Oats + Supplements (nie nüchtern!)</div>
+    <div class="p-routine-step"><b>13:00</b>&nbsp;🍱 Mittagessen – Hauptmahlzeit mit Carbs</div>
+    <div class="p-routine-step"><b>17:00</b>&nbsp;🎒 Snack: Quark + Erdnussmus oder Obst + Erdnussmus</div>
+    <div class="p-routine-step"><b>17:10</b>&nbsp;📊 Statistik / Epi lernen (Pomodoro 25/5)</div>
+    <div class="p-routine-step"><b>20:00</b>&nbsp;🏋️ Training START – nicht erst setzen!</div>
+    <div class="p-routine-step"><b>21:00</b>&nbsp;🍗 Abendessen: Protein + Gemüse (keine Carbs)</div>
+    <div class="p-routine-step"><b>21:15</b>&nbsp;📐 Quanti lernen</div>
+    <div class="p-routine-step"><b>23:15</b>&nbsp;Abend-Prep: Overnight Oats ansetzen · Boxen packen</div>
+    <div class="p-routine-step"><b>23:30</b>&nbsp;😴 Schlafen – Handy weg!</div>
+
+    <div class="p-hr"></div>
+    <div class="p-label">Ernährung</div>
+    <div class="p-h2">Dein Ernährungsplan</div>
+    <div class="p-tip" style="background:#FFF8E8;border-color:#C4A882;"><strong>Budget ~3€/Tag · lf & gf</strong>Glutenfreie Haferflocken · Laktosefreier Joghurt & Quark · Hüttenkäse · Hähnchenbrust TK · Thunfisch · Bananen · Erdnussmus · TK-Gemüse</div>
+
+    <div class="p-meal">
+      <div class="p-meal-head">Option A – Hafer-Tag (Trainingstag)<span>~1.280 kcal</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">09:00</span><span>Overnight Oats: gf Haferflocken + lf Joghurt + Banane + Erdnussmus + Supplements</span><span class="p-meal-kcal">~380</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">13:00</span><span>Hüttenkäse + Thunfisch + Gurke + Paprika · mit Carbs (Reis/Kartoffeln)</span><span class="p-meal-kcal">~500</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">17:00</span><span>Quark 150g + Erdnussmus · Schraubglas</span><span class="p-meal-kcal">~130</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">21:00</span><span>Hähnchenbrust TK + TK-Brokkoli + Olivenöl (keine Carbs!)</span><span class="p-meal-kcal">~210</span></div>
+    </div>
+
+    <div class="p-meal">
+      <div class="p-meal-head">Option B – Thunfisch-Tag (Ruhetag)<span>~1.210 kcal</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">09:00</span><span>Banana-Bowl: gf Haferflocken + lf Joghurt + Banane + Erdnussmus + Zimt + Supplements</span><span class="p-meal-kcal">~390</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">13:00</span><span>Thunfisch + Hüttenkäse + Gurke + Möhre · mit Carbs (Reis/Kartoffeln)</span><span class="p-meal-kcal">~490</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">17:00</span><span>Apfel + Erdnussmus · Schraubglas</span><span class="p-meal-kcal">~160</span></div>
+      <div class="p-meal-row"><span class="p-meal-type">21:00</span><span>Hähnchenbrust TK + TK-Spinat + Knoblauch (keine Carbs!)</span><span class="p-meal-kcal">~190</span></div>
+    </div>
+
+    <div class="p-hr"></div>
+    <div class="p-label">Supplements</div>
+    <div class="p-h2">Täglich um 09:00</div>
+    <div class="p-card-grid">
+      <div class="p-card"><h4>Zum Essen (nie nüchtern!)</h4><ul><li>🌿 Schwarzkümmelöl</li><li>🐟 Omega 3</li><li>🥕 Beta Carotin</li><li>💊 Haut, Haare, Nägel</li><li>🌱 3 Kräuter Entwässerung</li><li>🪨 Heilerde (gegen Säure)</li></ul></div>
+    </div>
+
+    <div class="p-hr"></div>
+    <div class="p-label">Fortschritt</div>
+    <div class="p-h2">10 Wochen Tracker</div>
+    <div class="p-body" style="margin-bottom:0.8rem">Immer montags früh, nüchtern wiegen.</div>
+    <div class="p-tracker-row"><span>Woche 1 – Start</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">58,0 kg</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 2</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">57,3 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 3 – Erste Fotos 📸</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">56,5 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 4</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">56,0 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 5 – Halbzeit! 🎯</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">55,5 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 6</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">55,0 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 7 – Intensivierung</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">54,5 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 8</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">54,0 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 9</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">53,5 kg?</span><div class="p-tracker-dot"></div></div></div>
+    <div class="p-tracker-row"><span>Woche 10 – ZIEL ERREICHT 🎉</span><div style="display:flex;gap:8px;align-items:center"><span class="p-tracker-w">53,0 kg</span><div class="p-tracker-dot"></div></div></div>
+
+    <div class="p-hr"></div>
+    <p style="font-size:0.7rem;color:#aaa;text-align:center;line-height:1.8;">Size Zero · 26J · 1,62m · 58→53kg<br>Mo Po&Beine · Di Pull · Mi Spazieren · Do Push · Fr Po&Beine · Sa Pull · So Rest<br>09:00 Frühstück · 13:00 Mittag · 17:00 Snack · 21:00 Abendessen · 250ml Wasser morgens</p>
+  </div>
+</div>
+
+<script>
+var SECTIONS = [
+  {id:"morgen",tab:"tag",emoji:"🌅",title:"Morgenroutine",sub:"05:45 – 09:00",color:"#C4A882",bg:"#FFF8EE",items:[
+    {id:"m1",text:"05:45 – Aufwachen · 250ml Wasser"},
+    {id:"m2",text:"05:55 – Tasche packen · Boxen + Supplements einpacken"},
+    {id:"m3",text:"06:45 – Haus verlassen · nur Wasser bis 09:00"},
+    {id:"m4",text:"09:00 – Frühstück + Supplements 🥣"}
+  ]},
+  {id:"unterwegs",tab:"tag",emoji:"🎒",title:"Unterwegs",sub:"09:00 – 17:00 · Arbeit",color:"#A8B89A",bg:"#F0F5ED",items:[
+    {id:"u1",text:"13:00 – Mittagessen 🍱"},
+    {id:"u2",text:"17:00 – Snack: Quark oder Obst + Erdnussmus"},
+    {id:"u3",text:"Wasser getrunken? 💧"}
+  ]},
+  {id:"lernen1",tab:"tag",emoji:"📊",title:"Statistik / Epi lernen",sub:"17:10 – 20:00 · 3h",color:"#7B9EC4",bg:"#EEF3F9",items:[
+    {id:"l1",text:"17:10 – Statistik / Epi starten (Pomodoro: 25/5)"},
+    {id:"l2",text:"Sportklamotten bereit legen für 20:00"}
+  ]},
+  {id:"training",tab:"tag",emoji:"🏋️",title:"Training",sub:"20:00 – 21:00",color:"#9B7EC4",bg:"#F3EEF9",items:[
+    {id:"t1",text:"20:00 – TRAINING START (nicht erst setzen!)"},
+    {id:"t2",text:"21:00 – Abendessen: Protein + Gemüse"}
+  ]},
+  {id:"lernen2",tab:"tag",emoji:"📐",title:"Quanti + Abend",sub:"21:15 – 23:30",color:"#7B9EC4",bg:"#EEF3F9",items:[
+    {id:"ll1",text:"21:15 – Quanti lernen starten"},
+    {id:"ll2",text:"23:15 – Overnight Oats ansetzen · Boxen packen"},
+    {id:"ll3",text:"23:30 – Schlafen (Handy weg!)"}
+  ]},
+  {id:"ernaehrung",tab:"tag",emoji:"🍽️",title:"Ernährung Check",sub:"Tagesübersicht",color:"#C4A882",bg:"#FFF8EE",items:[
+    {id:"e1",text:"09:00 – Frühstück (lf + gf) + Supplements ✓"},
+    {id:"e2",text:"13:00 – Mittagessen mit Carbs ✓"},
+    {id:"e3",text:"17:00 – Snack ✓"},
+    {id:"e4",text:"21:00 – Protein + Gemüse (keine Carbs) ✓"}
+  ]},
+  {id:"supplements",tab:"extra",emoji:"💊",title:"Supplements",sub:"Um 09:00 – nie nüchtern!",color:"#A8B89A",bg:"#F0F5ED",items:[
+    {id:"s1",text:"Schwarzkümmelöl (Nature Heart)"},
+    {id:"s2",text:"Omega 3"},
+    {id:"s3",text:"Beta Carotin"},
+    {id:"s4",text:"Haut, Haare, Nägel"},
+    {id:"s5",text:"3 Kräuter Entwässerung"},
+    {id:"s6",text:"Heilerde (gegen Säure)"}
+  ]},
+  {id:"einkauf",tab:"extra",emoji:"🛒",title:"Einkaufsliste",sub:"5 Tage · ~16€ · lf & gf",color:"#C48A7E",bg:"#FBF0EE",items:[
+    {id:"k1",text:"Glutenfreie Haferflocken 500g (~1,29€)"},
+    {id:"k2",text:"Laktosefreier Joghurt 500g (~0,99€)"},
+    {id:"k3",text:"Laktosefreier Quark 500g (~0,99€)"},
+    {id:"k4",text:"Hüttenkäse 2x 500g (~1,98€)"},
+    {id:"k5",text:"Hähnchenbrust TK 1kg (~4,99€)"},
+    {id:"k6",text:"Thunfisch in Wasser 3 Dosen (~2,37€)"},
+    {id:"k7",text:"Bananen 1kg (~1,09€)"},
+    {id:"k8",text:"Erdnussmus 350g (~1,99€)"},
+    {id:"k9",text:"TK-Brokkoli 1kg (~1,19€)"},
+    {id:"k10",text:"TK-Spinat 750g (~1,09€)"},
+    {id:"k11",text:"Möhren 1kg (~0,89€)"},
+    {id:"k12",text:"Gurken 2 Stück (~0,98€)"},
+    {id:"k13",text:"Paprika 2 Stück (~0,99€)"}
+  ]}
+];
+
+var checked = {};
+var openSection = "morgen";
+var activeTab = "tag";
+var activePage = "check";
+
+function load() { try { var s = localStorage.getItem("szfinal"); if(s) checked = JSON.parse(s); } catch(e) {} }
+function save() { try { localStorage.setItem("szfinal", JSON.stringify(checked)); } catch(e) {} }
+
+function showPage(page) {
+  activePage = page;
+  document.getElementById("page-check").style.display = page==="check" ? "block" : "none";
+  document.getElementById("page-plan").style.display = page==="plan" ? "block" : "none";
+  document.getElementById("cl-bottom").style.display = page==="check" ? "flex" : "none";
+  document.getElementById("nav-check").className = "mainnav-btn " + (page==="check" ? "active" : "inactive");
+  document.getElementById("nav-plan").className = "mainnav-btn " + (page==="plan" ? "active" : "inactive");
+}
+
+function toggle(id) { checked[id] = !checked[id]; save(); render(); }
+
+function switchTab(tab) {
+  activeTab = tab;
+  openSection = null;
+  document.getElementById("tab-tag").className = "subtab " + (tab==="tag" ? "subtab-active" : "subtab-inactive");
+  document.getElementById("tab-extra").className = "subtab " + (tab==="extra" ? "subtab-active" : "subtab-inactive");
+  render();
+}
+
+function toggleSection(id) { openSection = openSection===id ? null : id; render(); }
+
+function resetAll() { if(confirm("Alle Häkchen zurücksetzen?")) { checked = {}; save(); render(); } }
+
+function render() {
+  var daySecs = SECTIONS.filter(function(s){ return s.tab==="tag"; });
+  var totalDay = 0; daySecs.forEach(function(s){ totalDay += s.items.length; });
+  var doneDay = 0; daySecs.forEach(function(s){ s.items.forEach(function(i){ if(checked[i.id]) doneDay++; }); });
+  var pct = totalDay > 0 ? Math.round(doneDay/totalDay*100) : 0;
+
+  document.getElementById("ptxt").textContent = "Heute: " + doneDay + "/" + totalDay + " erledigt";
+  document.getElementById("ppct").textContent = pct + "%";
+  document.getElementById("pfill").style.width = pct + "%";
+  document.getElementById("pfill").style.background = pct===100 ? "#A8B89A" : "#C4A882";
+  document.getElementById("bstatus").textContent = pct===100 ? "🎉 Tag abgeschlossen!" : "Noch " + (totalDay-doneDay) + " Aufgaben";
+
+  var now = new Date();
+  document.getElementById("bdate").textContent = now.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+
+  var visible = SECTIONS.filter(function(s){ return s.tab===activeTab; });
+  var html = "";
+  visible.forEach(function(s) {
+    var total = s.items.length;
+    var done = 0; s.items.forEach(function(i){ if(checked[i.id]) done++; });
+    var allDone = done===total;
+    var isOpen = openSection===s.id;
+    html += '<div class="section" style="' + (allDone ? 'border-color:'+s.color : '') + '">';
+    html += '<button class="sec-head" style="background:' + (isOpen ? s.bg : 'transparent') + '" onclick="toggleSection(\'' + s.id + '\')">';
+    html += '<span class="sec-emoji">' + s.emoji + '</span>';
+    html += '<div class="sec-info"><div class="sec-title">' + s.title + (allDone ? ' <span style="color:'+s.color+'">✓</span>' : '') + '</div><div class="sec-sub">' + s.sub + '</div></div>';
+    html += '<div class="sec-meta"><span class="sec-count" style="color:' + (allDone ? s.color : '#999') + '">' + done + '/' + total + '</span><span class="arrow' + (isOpen ? ' arrow-open' : '') + '">▾</span></div>';
+    html += '</button>';
+    if(isOpen) {
+      html += '<div class="items">';
+      s.items.forEach(function(item) {
+        var ck = !!checked[item.id];
+        html += '<button class="item" style="background:' + (ck ? s.bg : 'transparent') + '" onclick="toggle(\'' + item.id + '\')">';
+        html += '<div class="cb" style="border-color:'+s.color+';background:' + (ck ? s.color : 'transparent') + '">';
+        if(ck) html += '<svg width="12" height="9" viewBox="0 0 13 10" fill="none"><path d="M1 5L4.5 8.5L12 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        html += '</div><span class="item-text' + (ck ? ' item-text-done' : '') + '">' + item.text + '</span></button>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById("cl-content").innerHTML = html;
+}
+
+load();
+render();
+showPage("check");
+</script>
+</body>
+</html>
