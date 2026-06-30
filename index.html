@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Size Zero">
+<title>Size Zero Complete</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: #F5F0E8; font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+header { background: #1A1A18; padding: 20px 16px; position: sticky; top: 0; z-index: 10; }
+.header-title { font-size: 28px; font-weight: 800; color: #FAFAF7; letter-spacing: -0.02em; }
+.header-sub { font-size: 10px; color: #A8B89A; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; }
+
+.tabs { display: flex; gap: 8px; margin-top: 12px; }
+.tab-btn { flex: 1; padding: 8px 0; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.tab-active { background: #C4A882; color: #1A1A18; }
+.tab-inactive { background: #2D2D2A; color: #C8BFB0; }
+
+#content { padding: 12px 16px 80px; }
+
+.day-block { background: #FAFAF7; border-radius: 12px; margin-bottom: 10px; border: 1.5px solid #E8E0D4; overflow: hidden; }
+.day-header { padding: 12px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: none; text-align: left; }
+.day-num { font-size: 18px; font-weight: 700; flex-shrink: 0; }
+.day-info { flex: 1; }
+.day-title { font-size: 13px; font-weight: 700; color: #1A1A18; }
+.day-sub { font-size: 10px; color: #888; margin-top: 2px; }
+.day-meta { display: flex; align-items: center; gap: 8px; }
+.day-count { font-size: 11px; font-weight: 600; color: #999; }
+.arrow { font-size: 14px; transition: transform 0.3s; display: inline-block; }
+
+.meals { border-top: 1px solid #F0EAE0; display: none; }
+.meals.open { display: block; }
+.meal { padding: 12px 14px; border-bottom: 1px solid #F0EAE0; }
+.meal:last-child { border-bottom: none; }
+.meal-time { font-size: 9px; color: #6B6B3A; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+.meal-label { font-weight: 700; color: #1A1A18; font-size: 11px; margin-bottom: 4px; }
+.meal-desc { font-size: 12px; color: #333; margin-bottom: 4px; }
+.meal-macros { font-size: 8px; color: #999; margin-bottom: 8px; }
+.meal-check { display: flex; align-items: center; gap: 10px; }
+.ckbox { width: 20px; height: 20px; border: 2px solid #C4A882; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: none; padding: 0; }
+.ckbox.checked { background: #C4A882; }
+.ckbox svg { display: none; }
+.ckbox.checked svg { display: block; }
+
+.section { background: #FAFAF7; border-radius: 12px; margin-bottom: 10px; border: 1.5px solid #E8E0D4; overflow: hidden; }
+.sec-head { padding: 12px 14px; cursor: pointer; width: 100%; display: flex; align-items: center; gap: 10px; border: none; background: transparent; text-align: left; }
+.sec-emoji { font-size: 18px; }
+.sec-info { flex: 1; }
+.sec-title { font-size: 13px; font-weight: 700; color: #1A1A18; }
+.sec-sub { font-size: 10px; color: #888; margin-top: 2px; }
+.sec-meta { display: flex; gap: 8px; align-items: center; }
+.sec-count { font-size: 11px; font-weight: 600; }
+.items { border-top: 1px solid #F0EAE0; display: none; }
+.items.open { display: block; }
+.item { padding: 12px 14px; border-bottom: 1px solid #F0EAE0; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; background: none; border-bottom: 1px solid #F0EAE0; text-align: left; }
+.item:last-child { border-bottom: none; }
+.item-text { font-size: 13px; color: #1A1A18; }
+.item-text.done { color: #aaa; text-decoration: line-through; }
+
+.phase { background: #EEF2E8; border-left: 3px solid #A8B89A; padding: 8px 12px; margin: 8px 0; border-radius: 4px; font-size: 10px; font-weight: 700; color: #6B6B3A; }
+
+footer { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: #1A1A18; padding: 10px 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+.footer-info { font-size: 10px; color: #C4A882; }
+.reset-btn { background: #2D2D2A; border: none; border-radius: 6px; padding: 6px 12px; color: #888; font-size: 11px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">SIZE ZERO</div>
+  <div class="header-sub">01.07.2026 – 08.09.2026</div>
+  <div class="tabs">
+    <button class="tab-btn tab-active" data-tab="0">📋 Tagesplan</button>
+    <button class="tab-btn tab-inactive" data-tab="1">🗓️ 70 Tage</button>
+    <button class="tab-btn tab-inactive" data-tab="2">💊 Info</button>
+  </div>
+</header>
+
+<div id="content"></div>
+
+<footer>
+  <div class="footer-info" id="footer-text">Tagesplan</div>
+  <button class="reset-btn" onclick="if(confirm('Alle Häkchen löschen?')){checked={}; save(); render();}">Reset</button>
+</footer>
+
+<script>
+// === DATA ===
+const SECTIONS = [
+  {id:"morgen",emoji:"🌅",title:"Morgenroutine",sub:"05:45–12:00",items:[
+    {id:"m1",text:"05:45 – Aufwachen · 250ml Wasser"},
+    {id:"m2",text:"05:55 – Tasche packen"},
+    {id:"m3",text:"06:45 – Haus verlassen"},
+    {id:"m4",text:"30 Min Pilates"}
+  ]},
+  {id:"meals",emoji:"🍽️",title:"Mahlzeiten",sub:"12:00–18:00",items:[
+    {id:"e1",text:"12:00 – Frühstück ✓"},
+    {id:"e2",text:"15:00 – Snack ✓"},
+    {id:"e3",text:"18:00 – Abendessen ✓"}
+  ]},
+  {id:"supplements",emoji:"💊",title:"Supplements (12:00)",items:[
+    {id:"s1",text:"Schwarzkümmelöl"},
+    {id:"s2",text:"Omega 3"},
+    {id:"s3",text:"Beta Carotin"},
+    {id:"s4",text:"Haut/Haare/Nägel"},
+    {id:"s5",text:"3 Kräuter"},
+    {id:"s6",text:"Heilerde"}
+  ]},
+  {id:"lernen",emoji:"📚",title:"Lernen",sub:"17:10–21:15",items:[
+    {id:"l1",text:"17:10 – Statistik"},
+    {id:"l2",text:"Sportklamotten bereit"}
+  ]},
+  {id:"training",emoji:"🏋️",title:"Training",sub:"20:00–21:00",items:[
+    {id:"t1",text:"20:00 – START"},
+    {id:"t2",text:"21:00 – Abendessen"}
+  ]},
+  {id:"abend",emoji:"🌙",title:"Abend",sub:"21:15–23:30",items:[
+    {id:"a1",text:"21:15 – Quanti lernen"},
+    {id:"a2",text:"23:15 – Prep"},
+    {id:"a3",text:"23:30 – Schlafen"}
+  ]}
+];
+
+const START = new Date(2026,6,1);
+function getDate(n) { const d=new Date(START); d.setDate(d.getDate()+n-1); return d; }
+function getDay(n) { return ["So","Mo","Di","Mi","Do","Fr","Sa"][getDate(n).getDay()]; }
+
+const TRAINING = {
+  "Mi":"Spazieren 4-5km",
+  "Do":"Push",
+  "Fr":"Po & Beine",
+  "Sa":"Pull",
+  "So":"REST + Prep",
+  "Mo":"Po & Beine",
+  "Di":"Pull"
+};
+
+const DAYS = [];
+for(let i=1;i<=70;i++){
+  DAYS.push({
+    num:i,
+    date:getDate(i),
+    day:getDay(i),
+    week:Math.ceil(i/7),
+    phase:Math.ceil(i/7)<=3?"EINSTIEG":Math.ceil(i/7)<=7?"INTENSIV":"FINISH",
+    meals:[
+      {time:"12:00",name:"Frühstück",desc:"Porridge (60g gf Haferflocken + 150g Skyr + 1 Banane + 20g Mandelmus)",cal:"420kcal",prot:"15g"},
+      {time:"15:00",name:"Snack",desc:"Skyr mit Früchten oder Apfel + Mandeln",cal:"150kcal",prot:"12g"},
+      {time:"18:00",name:"Abendessen",desc:"Protein + Gemüse + Kohlenhydrate",cal:"500kcal",prot:"43g"}
+    ]
+  });
+}
+
+// === STATE ===
+let checked = {};
+let tab = 0;
+let open70 = null;
+let openSec = null;
+
+function load() { try{checked=JSON.parse(localStorage.sz_complete||"{}")}catch{} }
+function save() { localStorage.sz_complete=JSON.stringify(checked); }
+
+function toggle(id) { checked[id]=!checked[id]; save(); render(); }
+
+function openDay(dayNum) { 
+  open70 = open70 === dayNum ? null : dayNum; 
+  render(); 
+}
+
+function openSection(secId) {
+  openSec = openSec === secId ? null : secId;
+  render();
+}
+
+function render() {
+  if(tab===0) renderTagesplan();
+  else if(tab===1) render70();
+  else renderInfo();
+}
+
+function renderTagesplan() {
+  let html="";
+  SECTIONS.forEach(s=>{
+    const d=s.items.filter(i=>checked[i.id]).length;
+    const open=openSec===s.id;
+    html+=`<div class="section">
+      <button class="sec-head" onclick="openSection('${s.id}')">
+        <span class="sec-emoji">${s.emoji}</span>
+        <div class="sec-info">
+          <div class="sec-title">${s.title}</div>
+          ${s.sub?`<div class="sec-sub">${s.sub}</div>`:""}
+        </div>
+        <div class="sec-meta">
+          <span class="sec-count">${d}/${s.items.length}</span>
+          <span class="arrow" style="transform:rotate(${open?180:0}deg)">▾</span>
+        </div>
+      </button>
+      <div class="items ${open?"open":""}">
+        ${s.items.map(i=>`<button class="item" onclick="toggle('${i.id}')">
+          <div class="ckbox ${checked[i.id]?"checked":""}"><svg width="12" height="9" viewBox="0 0 13 10" fill="none"><path d="M1 5L4.5 8.5L12 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="item-text ${checked[i.id]?"done":""}">${i.text}</div>
+        </button>`).join("")}
+      </div>
+    </div>`;
+  });
+  document.getElementById("content").innerHTML=html;
+  document.getElementById("footer-text").textContent="Tagesplan";
+}
+
+function render70() {
+  let html="";
+  let lastWeek=0;
+  DAYS.forEach(d=>{
+    if(d.week!==lastWeek){html+=`<div class="phase">WOCHE ${d.week} – ${d.phase}</div>`;lastWeek=d.week}
+    const open=open70===d.num;
+    const mealIds=d.meals.map((_,i)=>`day${d.num}m${i}`);
+    const done=mealIds.filter(id=>checked[id]).length;
+    const dateStr=d.date.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+    html+=`<div class="day-block">
+      <button class="day-header" onclick="openDay(${d.num})">
+        <div class="day-num">${d.num}</div>
+        <div class="day-info">
+          <div class="day-title">${d.day} · ${dateStr}</div>
+          <div class="day-sub">🧘 30min · ${TRAINING[d.day]}</div>
+        </div>
+        <div class="day-meta">
+          <span class="day-count">${done}/3</span>
+          <span class="arrow" style="transform:rotate(${open?180:0}deg)">▾</span>
+        </div>
+      </button>
+      <div class="meals ${open?"open":""}">
+        ${d.meals.map((m,i)=>{
+          const mid=`day${d.num}m${i}`;
+          return `<div class="meal">
+            <div class="meal-time">${m.time}</div>
+            <div class="meal-label">${m.name}</div>
+            <div class="meal-desc">${m.desc}</div>
+            <div class="meal-macros">${m.cal} · ${m.prot}</div>
+            <div class="meal-check">
+              <button class="ckbox ${checked[mid]?"checked":""}" onclick="toggle('${mid}')"><svg width="12" height="9" viewBox="0 0 13 10" fill="none"><path d="M1 5L4.5 8.5L12 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+              <span style="font-size:12px;color:#666">Abhaken</span>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  });
+  document.getElementById("content").innerHTML=html;
+  document.getElementById("footer-text").textContent="70 Tage Programm";
+}
+
+function renderInfo() {
+  document.getElementById("content").innerHTML=`<div style="padding:20px;font-size:13px;line-height:1.6;color:#333">
+    <h2 style="color:#1A1A18;margin-bottom:12px">📋 Programm-Info</h2>
+    <p style="background:#FFF8EE;border-left:3px solid #C4A882;padding:10px;border-radius:4px;margin-bottom:12px">
+      <b>01.07.2026 – 08.09.2026</b><br>
+      <b>Ziel:</b> 58kg → 53kg
+    </p>
+    <h3 style="color:#1A1A18;margin-top:14px">🍽️ Ernährung</h3>
+    <p>12:00 Frühstück · 15:00 Snack · 18:00 Abendessen<br>
+    100% laktosefrei & glutenfrei<br>
+    ~1.070 kcal/Tag · 70g Protein/Tag</p>
+    <h3 style="color:#1A1A18;margin-top:14px">🏋️ Training</h3>
+    <p>Mo–Sa: 30 Min Pilates morgens<br>
+    Mo–Sa: 60 Min Strength 20:00–21:00</p>
+    <h3 style="color:#1A1A18;margin-top:14px">⚡ Phasen</h3>
+    <p><b>Wo 1–3:</b> Einstieg<br>
+    <b>Wo 4–7:</b> Intensivierung<br>
+    <b>Wo 8–10:</b> Finish</p>
+  </div>`;
+  document.getElementById("footer-text").textContent="Programm-Info";
+}
+
+// === TABS ===
+document.querySelectorAll(".tab-btn").forEach((b,i)=>{
+  b.onclick=()=>{
+    tab=i;
+    document.querySelectorAll(".tab-btn").forEach((x,j)=>x.className=`tab-btn ${j==i?"tab-active":"tab-inactive"}`);
+    render();
+  };
+});
+
+load();
+render();
+</script>
+</body>
+</html>
